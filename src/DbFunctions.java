@@ -2,8 +2,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class DbFunctions {
+    static HashMap<String,String> mapEmpName= new HashMap<>();
+    static HashMap<String,ArrayList> mapEmpInfo=new HashMap<>();
 
     public Connection connect_to_db(String db_name, String user, String pass){
         Connection con = null;
@@ -37,7 +41,7 @@ public class DbFunctions {
             String query=String.format("insert into %s(name,address) values('%s','%s');",table_name,name,address);
             statement=conn.createStatement();
             statement.executeUpdate(query);
-
+            update_store(conn,table_name,name,address);
             System.out.println("Row Inserted");
         }
         catch (Exception e){
@@ -123,6 +127,30 @@ public class DbFunctions {
             statement=conn.createStatement();
             statement.executeUpdate(query);
             System.out.println("Table deleted");
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
+    }
+    public void  update_store(Connection conn,String table_name,String name,String address){
+        Statement statement;
+        ResultSet rs =null;
+        try{
+            String query=String.format("select * from %s",table_name);
+            statement=conn.createStatement();
+            rs = statement.executeQuery(query);
+            ArrayList<String> info = new ArrayList<>();
+            info.add(name);
+            info.add(address);
+            while(rs.next()) {
+//                System.out.print(rs.getString("empid")+"\t");
+//                System.out.print(rs.getString("name")+"\t");
+//                System.out.println(rs.getString("address"));
+                mapEmpInfo.put(rs.getString("empid"),info);
+                mapEmpName.put(rs.getString("empid"), name);
+            }
+            System.out.println(mapEmpName);
+            System.out.println(mapEmpInfo);
         }
         catch (Exception e){
             System.out.println(e);
